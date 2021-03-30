@@ -1,1 +1,30 @@
 # Data transformation
+
+```{r}
+library(dplyr)
+```
+
+```{r}
+rad_people <- read.csv("data/raw/People.csv")
+colnames(rad_people)[1] <- "FIPS"
+rad_jobs <- read.csv("data/raw/Jobs.csv")
+colnames(rad_jobs)[1] <- "FIPS"
+rad_income <- read.csv("data/raw/Income.csv")
+colnames(rad_income)[1] <- "FIPS"
+rad_CC <- read.csv("data/raw/County Classifications.csv")
+colnames(rad_CC)[1] <- "FIPS"
+```
+
+```{r}
+rad_people <- rad_people%>%select(FIPS,State,County,Ed1LessThanHSPct,Ed5CollegePlusPct,Ed4AssocDegreePct,Ed2HSDiplomaOnlyPct)
+rad_CC <- rad_CC %>% select(FIPS,State,County,Hipov,HiAmenity,Low_Education_2015_update)
+```
+
+```{r}
+rad22 <- full_join(rad_jobs, rad_people, by = "FIPS")%>%
+              full_join(.,rad_income, by = "FIPS")%>%
+                    full_join(.,rad_CC, by = "FIPS")%>%
+                      distinct(FIPS, .keep_all = TRUE)
+```
+
+Our row data includes 5 subdata which contains information about comprehensive socioeconomic status of all counties in the U.S. Our first step was to import all the data except the data about veterans. Because we are more interested in the general socioeconomic status of different regions, we will not focus on veterans. After imported all the data we need, we select the variables that we wanted to explore. We selected all the variables in data about jobs and income because they were all related to our topics. We also selected variables about the rates of different education levels in the people data and variables about poverty, natural amenity and education in a countywide scale in the county class data. Because all those factors are also highly related to our topic. In the last step we merged our selected data into one dataframe and dropped the duplicated rows.
