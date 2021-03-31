@@ -1,6 +1,6 @@
 --- 
 title: "Socioeconomic Discussion on Rural Atlas data"
-author: "Ivy Liu(wl2773) & Changhao He(ch3557) & Yiling Tian(2746)"
+author: "Ivy Liu(wl2773) & Changhao He(ch3557) & Yiling Tian(yt2746)"
 date: "`r Sys.Date()`"
 site: bookdown::bookdown_site
 ---
