@@ -1,1 +1,38 @@
 # Data transformation
+
+```{r}
+library(dplyr)
+```
+
+```{r}
+rad_people <- read.csv("data/raw/People.csv")
+colnames(rad_people)[1] <- "FIPS"
+rad_jobs <- read.csv("data/raw/Jobs.csv")
+colnames(rad_jobs)[1] <- "FIPS"
+rad_income <- read.csv("data/raw/Income.csv")
+colnames(rad_income)[1] <- "FIPS"
+rad_CC <- read.csv("data/raw/County Classifications.csv")
+colnames(rad_CC)[1] <- "FIPS"
+```
+
+```{r}
+rad_people <- rad_people%>%select(FIPS,Ed1LessThanHSPct,Ed5CollegePlusPct,Ed4AssocDegreePct,Ed2HSDiplomaOnlyPct)
+rad_CC <- rad_CC %>% select(FIPS,Hipov,HiAmenity,Low_Education_2015_update)
+rad_income <- rad_income %>% select(-(County),-(State))
+```
+
+```{r}
+rad22 <- full_join(rad_jobs, rad_people, by = "FIPS")%>%
+              full_join(.,rad_income, by = "FIPS")%>%
+                    full_join(.,rad_CC, by = "FIPS")%>%
+                      distinct(FIPS, .keep_all = TRUE)
+rad22$FIPS <- as.factor(rad22$FIPS)
+```
+
+We have 5 excel files, they are very easy to load into dataframes that are workable in R.\
+We only kept 4 of them because the variables in veterans.csv does not pertain to the questions we are trying to answer.\
+For some of the dataset, we only chose a subset of columns that are relevant (expand on this a little more, maybe use a few examples to explain why these columns are selected and why some others are discarded).\
+The data types of the columns all make sense, so we don’t need to do much about it.\
+We used factor for the state column to make future R analyses/graphing easier (optional) .\
+Merged the (useful) dataframes together with the value of FIPs, since FIPs is a like an ID for each county, it is unique and we can identify each county with a FIPs value.\
+Lastly, this new cleaned data is saved into a csv file in the folder data/cleaned, which will be used for all the analysis in the rest of this report.
