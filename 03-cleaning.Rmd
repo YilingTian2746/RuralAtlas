@@ -16,23 +16,37 @@ colnames(rad_CC)[1] <- "FIPS"
 ```
 
 ```{r}
-rad_people <- rad_people%>%select(FIPS,Ed1LessThanHSPct,Ed5CollegePlusPct,Ed4AssocDegreePct,Ed2HSDiplomaOnlyPct)
-rad_CC <- rad_CC %>% select(FIPS,Hipov,HiAmenity,Low_Education_2015_update)
-rad_income <- rad_income %>% select(-(County),-(State))
+rad_people <- rad_people %>%
+  select(FIPS,Ed1LessThanHSPct,Ed5CollegePlusPct,Ed4AssocDegreePct,Ed2HSDiplomaOnlyPct)
+
+rad_CC <- rad_CC %>% 
+  select(FIPS,Hipov,HiAmenity,Low_Education_2015_update)
+
+rad_income <- rad_income %>% 
+  select(-(County),-(State))
 ```
 
 ```{r}
-rad22 <- full_join(rad_jobs, rad_people, by = "FIPS")%>%
-              full_join(.,rad_income, by = "FIPS")%>%
-                    full_join(.,rad_CC, by = "FIPS")%>%
+rad22 <- full_join(rad_jobs, rad_people, by = "FIPS") %>%
+              full_join(.,rad_income, by = "FIPS") %>%
+                    full_join(.,rad_CC, by = "FIPS") %>%
                       distinct(FIPS, .keep_all = TRUE)
 rad22$FIPS <- as.factor(rad22$FIPS)
 ```
 
-We have 5 excel files, they are very easy to load into dataframes that are workable in R.\
-We only kept 4 of them because the variables in veterans.csv does not pertain to the questions we are trying to answer.\
-For some of the dataset, we only chose a subset of columns that are relevant (expand on this a little more, maybe use a few examples to explain why these columns are selected and why some others are discarded).\
-The data types of the columns all make sense, so we don’t need to do much about it.\
-We used factor for the state column to make future R analyses/graphing easier (optional) .\
-Merged the (useful) dataframes together with the value of FIPs, since FIPs is a like an ID for each county, it is unique and we can identify each county with a FIPs value.\
-Lastly, this new cleaned data is saved into a csv file in the folder data/cleaned, which will be used for all the analysis in the rest of this report.
+```{r}
+write.csv(rad22,"data/cleaned/ruralAtlasDataCleaned.csv", row.names = FALSE)
+```
+
+Our raw data contains 5 .csv files each describing one aspect of the socioeconomic status for all counties in the United States. \
+
+Since the raw data are already stored in .csv format with proper column names, they can be directly loaded into R data frames. \
+
+The first step was to import all the data except for the veterans.csv. This is because general socioeconomic attributes such as unemployment rate and per capita income are more relevant to the questions we are trying to answer, so we will not be focusing on veteran data.\
+
+After the importing step, we selected a subset of variables from the People and County Classification dataset, and kept all the variables for the Jobs and Income dataset. Specifically, the variables selected from the People dataset are the rates of different education levels, and the variables selected from the County Classification dataset describe poverty, natural amenity and low education classifications. These attributes are highly related to our topic, and all other not so applicable variables are discarded.\
+
+We noticed that the columns in the data frames already have proper data type; hence we didn't make modifications on that. However we converted the FIPs variable into a factor to make future analysis and graphing easier.\
+
+For the last step, we joined the cleaned data into one data frame using the FIPs since FIPs is like an ID and is unique for each county. This new data frame was exported to a csv file under the folder data/cleaned; it will be used for the analyses in the rest of this report.\
+
