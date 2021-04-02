@@ -26,7 +26,7 @@ The objective of this project is to analyze socioeconomic status of all US count
 
 ## Missing pattern plots
 
-### First plot
+### Missing value pattern by state and three special binary variables
 
 Based on the plot below, we conclude that most of the states do not have missing values; on the contrary, PR(Puerto Rico), AK(Alaska) and HI(Hawaii) have a significant number of missing values. This could be due to the fact that PR and HI are islands and far from the rest of the states and AK has extreme weathers, so it is hard to collect comprehensive data in these states.\
 
@@ -57,7 +57,7 @@ ggplot(rad_binary, aes(x = fct_reorder(fct_rev(State), -percent_missing, sum), y
         axis.title.y = element_text(size = 14))
 ```
 
-### Second plot
+### Missing value pattern by state and the rest of the variables
 
 A similar pattern exists in the second plot: most of the states do not have any missing values. The states that have the most number of missing values match the ones observed from the first plot, including HI, AK, PR. While VA and NM(New Mexico) also have a small percentage of missing values. \
 
@@ -83,9 +83,9 @@ ggplot(rad_rest, aes(x =  fct_reorder(fct_rev(State), -percent_missing, sum), y 
 
 
 ## Why separate the variables into two plots?\
-Note that the data is grouped by states, and the first row of each state group is the records for the state itself (not any county within the state). While examining the cleaned data, we noticed that three variables are special: HiPov, HiAmenity and Low_Education_2015_update. For the first row of every state group, these three variables are all missing values. This makes sense since they are binary variables describing characteristics of each county, and it should not have any value for the rows describing the overall state statistics. \
+Note that the data is grouped by states, and the first row of each state group is the records for the state itself (not any county within the state). While examining the cleaned data, we noticed that three variables are special: HiPov, HiAmenity and Low_Education_2015_update. For the first row of every state group, these three variables are all missing values. This makes sense since they are binary variables describing characteristics of each county, and it should not have any value for the rows describing the overall state statistics. Therefore, for the first plot only, we removed the first row of each state group when plotting the missing value percentages. \
 
-Therefore, for the first plot only, we removed the first row of each state group when plotting the missing value percentages.\
+Hence, the socioeconomic variables are separated into two sets: the three variables mentioned above and the other variables, based on which the two plots are created.\
 
 
 ## Additional justifications for the choice of plots\
