@@ -1,2 +1,15 @@
 # Data sources
 
+With the wide spread of rural population, we need to find dataset which can indicate the socioeconomic factors we are interested in across different rural regions, and Ivy encounters this awesome dataset ----Atlas of Rural and Small-town America, which comes from the collaboration work of USDA agencies and ERS research team. This dataset provides us broad categories of socioeconomic factors of 3278 rural counties across the nation and demonstrates them in different csv files, including People.csv, Jobs.csv, County classifications.csv, Income.csv, Veterans.csv, and a complementary csv file describing variables used in the dataset.
+
+People.csv is a demographic data from the American Community Survey, including information about total population rate change, international migration, migration, immigration, education, population density, age composition, race and ethnicity composition, and family composition across the all states.
+
+Job.csv is an Economic data from the Bureau of Labor Statistics and other resources, including information about unemployment rate, lobar force, occupational composition.
+Income.csv is an Economic data from the U.S Census Bureau’s Small Area Income and Poverty Estimates (SAIPE), including information about Poverty rate for all age, poverty for age under 18, Deep poverty, median household income, per capital income.
+
+Veterans.csv are indicators from the American Community Survey on social and economic conditions of veterans based on their age, gender, race, ethnicity, education level, disability condition, and service in different War period.
+
+County classifications.csv contains information about several categorical variables, such as Rural-urban continuum, population loss, manufacturing-dependent counties, economic dependence and other ERS county codes, where 0 means the county is not in that category, and 1 means the county is in that category.
+
+### Possible issues
+	This dataset contains a significant amount of social and economic variables of 3278 rural counties across all the states; however, considerable large number of variables only have data on a specific year, which would be difficult for us to capture the changes. Moreover, the data of some variables are before 2005, which may be less valuable for us to dig in. 
