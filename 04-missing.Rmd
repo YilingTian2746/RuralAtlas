@@ -1,1 +1,94 @@
 # Missing values
+
+
+```{r}
+library(dplyr)
+library(tidyverse)
+library(ggplot2)
+library(readxl)
+```
+
+```{r}
+rad <- read.csv(file = "data/cleaned/ruralAtlasDataCleaned.csv")
+nrows <- nrow(rad)
+```
+
+```{r}
+# Just some initial insights
+missing_by_col <- colSums(is.na(rad)) %>% 
+  sort(decreasing = TRUE)
+```
+
+To identify the patterns of missing values, the following plots are useful. For both of the plots below, the x-axis contains the US states and the y-axis contains some socioeconomic variables, and the fill color represents the percentage of counties within a state that has missing values for the socioeconomic variable. \
+
+The objective of this project is to analyze socioeconomic status of all US counties; however, there are too many counties (3225 in total) to identify missing value patterns for each of them. Therefore, we decided to identify missing patterns for each state. Since each state might have a different percentage/number of counties with missing values, the fill color shows the percentage of missing values for a specific state and socioeconomic variable. \
+
+
+## Missing pattern plots
+
+### First plot
+
+Based on the plot below, we conclude that most of the states do not have missing values; on the contrary, PR(Puerto Rico), AK(Alaska) and HI(Hawaii) have a significant number of missing values. This could be due to the fact that PR and HI are islands and far from the rest of the states and AK has extreme weathers, so it is hard to collect comprehensive data in these states.\
+
+CO(Colorado), IL(Illinois) and VA(Virgina) also have a very small percentage of missing values (< 2%) for no obvious reasons. \
+
+```{r, fig.height=6, fig.width=10}
+# process data
+rad_binary <- rad[2:nrows, c(2, 83, 84, 85)] %>%
+  rename(Low_Educ = Low_Education_2015_update) %>% # completely for visual purpose (i.e to save some space)
+  dplyr::filter(State == lag(State)) %>% # the reason for this step is explained above
+  gather(key, value, -State) %>%
+  mutate(missing = ifelse(is.na(value), 1, 0)) %>%
+  group_by(State, key) %>%
+  summarize(percent_missing = mean(missing)*100)
+
+# plot
+ggplot(rad_binary, aes(x = fct_reorder(fct_rev(State), -percent_missing, sum), y = key, fill = percent_missing)) +
+  geom_tile(color = "grey") +
+  scale_fill_gradientn(values = scales::rescale(c(0, 20, 40, 60, 80, 100)), 
+                       colors = c("lightyellow", "darkgreen", "dodgerblue2")) +
+  xlab("States") +
+  ylab("Socioeconomic variables") +
+  ggtitle("Missing pattern of some binary socioeconomic variables by US states") +
+  theme_bw() +
+  theme(axis.text.x=element_text(angle = 90, hjust = 1, size = 10), 
+        axis.text.y=element_text(hjust = 1, size = 12), 
+        axis.title.x = element_text(size = 14), 
+        axis.title.y = element_text(size = 14))
+```
+
+### Second plot
+
+A similar pattern exists in the second plot: most of the states do not have any missing values. The states that have the most number of missing values match the ones observed from the first plot, including HI, AK, PR. While VA and NM(New Mexico) also have a small percentage of missing values. \
+
+
+```{r, fig.height=20, fig.width=12}
+rad_rest <- rad[2:nrows, c(2, 4:82)] %>%
+  gather(key, value, -State) %>%
+  mutate(missing = ifelse(is.na(value), 1, 0)) %>%
+  group_by(State, key) %>%
+  summarize(percent_missing = mean(missing)*100) 
+
+ggplot(rad_rest, aes(x =  fct_reorder(fct_rev(State), -percent_missing, sum), y =key, fill = percent_missing)) +
+  geom_tile(color = "grey") +
+  ggtitle("Missing pattern of socioeconomic variables by US states") +
+  scale_fill_gradientn(values = scales::rescale(c(0, 20, 40, 60, 80, 100)), 
+                       colors = c("lightyellow", "darkgreen", "dodgerblue2")) +
+  theme_bw() +
+  theme(axis.text.x=element_text(angle = 90, hjust = 1, size = 12), 
+        axis.text.y=element_text(hjust = 1, size = 12), 
+        axis.title.x = element_text(size = 14), 
+        axis.title.y = element_text(size = 14))
+```
+
+
+## Why separate the variables into two plots?\
+Note that the data is grouped by states, and the first row of each state group is the records for the state itself (not any county within the state). While examining the cleaned data, we noticed that three variables are special: HiPov, HiAmenity and Low_Education_2015_update. For the first row of every state group, these three variables are all missing values. This makes sense since they are binary variables describing characteristics of each county, and it should not have any value for the rows describing the overall state statistics. \
+
+Therefore, for the first plot only, we removed the first row of each state group when plotting the missing value percentages.\
+
+
+## Additional justifications for the choice of plots\
+We did not plot the missing patterns with the data values since fill color already shows the percentage of counties with missing value for each state, and it could be confusing to have parts of the graph with fill representing the data values and other parts with fill being missing percentages. \
+
+The choice of having states on the x-axis and variables on the y-axis is for visualization purposes. Due to the large number of socioeconomic variables, the graph is better presented to have them on the y-axis. \
