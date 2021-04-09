@@ -1,1 +1,477 @@
 # Results
+
+## Geographical analysis
+
+```{r}
+#install.packages("devtools")
+#devtools::install_github("UrbanInstitute/urbnmapr", force = TRUE)
+#devtools::install_github("UrbanInstitute/urbnthemes", force = TRUE)
+# install.packages("reshape2")
+# install.packages("psych")
+library(dplyr)
+library(tidyverse)
+library(urbnmapr)
+library(choroplethr)
+library(GGally)
+library(ggplot2)
+library(reshape2)
+library(psych)
+#install.packages("ggpubr")
+#install.packages("broom")
+#install.packages("ggmosaic")
+#install.packages("geofacet")
+library(geofacet)
+library(broom)
+library(ggpubr)
+library(ggmosaic)
+library(stringr)
+```
+
+```{r}
+# Read data from data/cleaned
+rad <- read.csv(file = "data/cleaned/ruralAtlasDataCleaned.csv")
+nrows <- nrow(rad)
+```
+
+```{r}
+# This is for plotting county-level graphs
+#   These preprocessing steps are specific for the geographical plots; 
+#   specifically, for merging with the dataset: counties
+rad_merge <- rad
+rad_merge$FIPS <- sapply(rad_merge$FIPS, as.character)
+rad_merge$FIPS <-str_pad(rad_merge$FIPS, width=5, side="left", pad="0")
+rad_merge <- rename(rad_merge, county_fips = FIPS) %>%
+  dplyr::filter(State == lag(State)) # remove the "overall state" rows
+
+is.nan.data.frame <- function(x)
+  do.call(cbind, lapply(x, is.nan))
+
+# This is for plotting state-level graphs
+rad_state <- rad[!duplicated(rad$State), ]
+rad_state <- rad_state[2:52, -c(1, 2)] %>% # Select the column of interest
+  rename(region = County) # Rename columns for the choropleth plot
+rad_state$region = tolower(rad_state$region) # Convert state names to lowercase
+```
+
+
+This part of the results aims to analyze how some of the important socioeconomic status varies across all the counties in the US. To perform these analyses, we used a dataset called counties from the "urbnmapr" package, which contains geographical information of each county (e.g longitude and latitude). \
+
+The maps do not contain PR(Puerto Rico) since the geographic information of PR is missing from the counties dataset. This does not significantly affect the overall analysis as our data for PR has a lot of missing values to start with. In addition, for all the graphs in this section, missing values are filled in red. Note that some data is missing but cannot be indicated on the graphs because the geographical data for these counties is missing as well (e.g the Prince of Wales-Outer Ketchikan and Skagway-Hoonah-Angoon county in AK(Alaska)).  \
+
+Lastly, note that the color scale for each graph is different. For instance, poverty rate graph has a scale of 0-60%, while the unemployment rate graph has a scale of 0-24%.\
+\
+
+
+### Unemployment rate\
+
+```{r}
+# Extract only the UnempRate columns
+UnempRate_data <- rad_merge[2:nrows, c(1,2,4:11,27,39,40,42,62)] 
+
+# Find average unemployment rate
+UnempRate_data$AvgUnempRate1907 <- rowMeans(UnempRate_data[ , 3:15], na.rm=FALSE)
+# UnempRate_data$AvgUnempRate1907 <- UnempRate_data$AvgUnempRate1907/100
+
+# Only select FIPs and average unemployment rate columns
+UnempRate_data <- UnempRate_data %>% select(county_fips, AvgUnempRate1907)
+
+# Merge with counties
+UnempRate_data <- left_join(UnempRate_data, counties, by = "county_fips")
+
+# Convert NaN values to na
+UnempRate_data[is.nan(UnempRate_data)] <- NA
+
+# convert column from numerical to categorical for graphing in discrete scale
+UnempRate_data$AvgUnempRate19071<-cut(UnempRate_data$AvgUnempRate1907, c(0,4,8,12,16,20,24,28))
+```
+
+```{r, fig.height=6, fig.width=8}
+# Making map
+UnempRate_data %>%
+  ggplot(aes(long, lat, group = group, fill = AvgUnempRate19071)) +
+  geom_polygon(color = "#f0f0f0", size = 0.04) +
+  scale_fill_brewer(palette = "YlGnBu",
+                    na.value = "red") +
+  geom_polygon(data = states, mapping = aes(long, lat, group = group),
+               fill = NA, color = "#f0f0f0", size = .25) +
+  coord_map(projection = "albers", lat0 = 39, lat1 = 45) +
+  labs(fill = "Average unemployment rate in %") +
+  ggtitle("Average unemployment rate from 2007 to 2019 in all US counties") +
+  theme(legend.position="bottom", legend.direction="horizontal") +
+  guides(fill = guide_legend(ncol = 4))
+```
+
+This demonstrate how the unemployment rate varies by different counties and states respectively. Instead of using the number of unemployed people within each county, unemployment rate is used to avoid confusion since overall population varies significantly between states. The same rationale applies to some of graphs below too.\
+
+According to these maps, the general trend is that the states in the mid-US and above TX(Texas) tend to have lower unemployment rate, while counties with highest unemployment rate are in AK, AL(Alabama), CA(California) and AZ(Arizona). One thing to notice is that the exact unemployment rate does depend on the specific county. For example, the state average for SD(South Dakota) is very low, yet three of the counties have relatively high unemployment rate (above 12%). Moreover, some county-level data in AK is missing as discussed in Missing Data. \
+\
+
+### Education rate\
+
+```{r}
+# Extract only the Ed5CollegePlusPct and Ed4AssocDegreePct columns
+Educ_data <- rad_merge[2:nrows, c(1,2,72,73)] 
+
+# Find percentages of people with high education
+Educ_data$PctEd4Or5 <- rowSums(Educ_data[, c("Ed5CollegePlusPct", "Ed4AssocDegreePct")], na.rm=FALSE)
+#Educ_data$PctEd4Or5 <- Educ_data$PctEd4Or5/100
+
+# Only select FIPs and average unemployment rate columns
+Educ_data <- Educ_data %>% select(county_fips, PctEd4Or5)
+
+# Merge with counties
+Educ_data <- left_join(Educ_data, counties, by = "county_fips")
+
+# Convert NaN values to na
+Educ_data[is.nan(Educ_data)] <- NA
+
+# convert column from numerical to categorical for graphing in discrete scale
+Educ_data$PctEd4Or51<-cut(Educ_data$PctEd4Or5, c(0,10,20,30,40,50,60,70,80))
+```
+
+
+```{r, fig.height=6, fig.width=8}
+# Making map by county
+Educ_data %>%
+  ggplot(aes(long, lat, group = group, fill = PctEd4Or51)) +
+  geom_polygon(color = "#f0f0f0", size = 0.04) +
+  scale_fill_brewer(palette = "YlGnBu",
+                    na.value = "red") +
+  geom_polygon(data = states, mapping = aes(long, lat, group = group),
+               fill = NA, color = "#ffffff", size = .25) +
+  coord_map(projection = "albers", lat0 = 39, lat1 = 45) +
+  labs(fill = "High education rate in %") +
+  ggtitle("Percentage of population with 4-year college or associate's degree from 2014 to 2018 in all US counties") +
+  theme(legend.position="bottom", legend.direction="horizontal", plot.title = element_text(size=11)) +
+  guides(fill = guide_legend(ncol = 4))
+```
+
+
+In this section, "high education" refers to a 4-year college or an associate's degree. For similar reasons as discussed above, the rate of high education is used instead of the total number of people with high education. \
+
+An important thing to note is that the data only accounts for adults 25 years old and over. Since it is possible and common to attain a college or associate's degree before the age of 25, we should keep in mind that the data is not comprehensive. \
+
+The trend of high education is not as obvious as the unemployment rate; however, we can see that the states in the northern US has more counties with high percentages of people with high education when compared to the southern US. No county has more than 90% of people with high education, and the highest education rate exist in WA(Washington), MT(Montana), WY(Wyoming) and CO(Colorado). \
+\
+
+
+### Poverty rate \
+
+
+```{r}
+# Extract only the PovertyAllAgesPct column
+Poverty_data <- rad_merge[2:nrows, c(1,2,79)] 
+
+# Only select FIPs and average unemployment rate columns
+Poverty_data <- Poverty_data %>% select(county_fips, PovertyAllAgesPct)
+
+# Merge with counties
+Poverty_data <- left_join(Poverty_data, counties, by = "county_fips") 
+# Poverty_data$PovertyAllAgesPct <- Poverty_data$PovertyAllAgesPct/100
+
+# Convert NaN values to na
+Poverty_data[is.nan(Poverty_data)] <- NA
+
+# convert column from numerical to categorical for graphing in discrete scale
+Poverty_data$PovertyAllAgesPct1<-cut(Poverty_data$PovertyAllAgesPct, c(0,10,20,30,40,50,60))
+```
+
+```{r, fig.height=6, fig.width=8}
+# Making map
+Poverty_data %>%
+  ggplot(aes(long, lat, group = group, fill = PovertyAllAgesPct1)) +
+  geom_polygon(color = "#f0f0f0", size = 0.04) +
+  scale_fill_brewer(palette = "YlGnBu",
+                    na.value = "red") +
+  geom_polygon(data = states, mapping = aes(long, lat, group = group),
+               fill = NA, color = "#ffffff", size = .25) +
+  coord_map(projection = "albers", lat0 = 39, lat1 = 45) +
+  labs(fill = "Poverty rate in %") +
+  ggtitle("Percentage of population of all ages in poverty in 2018 by counties") +
+  theme(legend.position="bottom", legend.direction="horizontal", plot.title = element_text(size=11)) +
+  guides(fill = guide_legend(ncol = 4))
+```
+
+For similar reasons as discussed above, the poverty rate data is used instead of the total number of people in poverty. \
+
+Based on this graph, the general pattern is that more counties in the southern US states have relatively high poverty rate than the northern counties; again, poverty rate varies between counties with each state. For instance, although SD(South Dakota) seems to have low poverty rate in general, some of its counties have more than 50% poverty rate. This observation is somewhat consistent with the high education trend since it makes sense that counties with more people obtaining high education tend to have less poverty issues. \
+\
+
+
+### Per capita income \
+
+```{r}
+# Extract only the per capita income column
+Income_data <- rad_merge[2:nrows, c(1, 2, 77)] 
+
+# Only select FIPs and the per capita income column
+Income_data <- Income_data %>% select(county_fips, PerCapitaInc)
+
+# Merge with counties
+Income_data <- left_join(Income_data, counties, by = "county_fips") 
+
+# Convert NaN values to na
+Income_data[is.nan(Income_data)] <- NA
+
+# convert column from numerical to categorical for graphing in discrete scale
+Income_data$PerCapitaInc1<-cut(Income_data$PerCapitaInc, c(0,12000,24000,36000,48000,60000,72000))
+```
+
+```{r, fig.height=6, fig.width=8}
+# Making map
+Income_data %>%
+  ggplot(aes(long, lat, group = group, fill = PerCapitaInc1)) +
+  geom_polygon(color = "#f0f0f0", size = 0.04) +
+  scale_fill_brewer(palette = "YlGnBu",
+                    na.value = "red") +
+  geom_polygon(data = states, mapping = aes(long, lat, group = group),
+               fill = NA, color = "#ffffff", size = .25) +
+  coord_map(projection = "albers", lat0 = 39, lat1 = 45) +
+  labs(fill = "Per capita income in $") +
+  ggtitle("Per capita income from 2014 to 2018 in all US counties") +
+  theme(legend.position="bottom", legend.direction="horizontal", plot.title = element_text(size=11)) +
+  guides(fill = guide_legend(ncol = 4))
+```
+It is not very obvious as which part of the US has higher per capita income; however, if looking closely, it seems that the south-eastern counties in general and some of the western counties have lower per capita income. This pattern is very similar to that of the high education graph, which suggests that there might be a dependency relationship between education level and average income. It is also interesting to notice that for most of the states, there is one or more counties with a singificantly higher average income than the other counties. \
+
+We can also see that one of the counties (Rio Arriba) in New Mexico is missing per capita income data. \
+\
+
+
+```{r}
+# This downloaded data is uploaded to Github for the Interactive Component. 
+UnempRate_data$AvgUnempRate1907 <- round(UnempRate_data$AvgUnempRate1907 ,digit=2)  
+write.csv(UnempRate_data[, c(1, 2, 11, 13)],"data/d3/UnempRate_data.csv", row.names = FALSE)
+#write.csv(Educ_data[, 1:2],"data/d3/Educ_data.csv", row.names = FALSE)
+#write.csv(Poverty_data[, 1:2],"data/d3/Poverty_data.csv", row.names = FALSE)
+#write.csv(Income_data[, 1:2],"data/d3/Income_data.csv", row.names = FALSE)
+```
+
+
+## Dependency Relationship analysis
+
+### Dependency relation between Unemployment Rate and Education levels.
+```{r,fig.width=10}
+# Only takes the general information of the whole state(average date of all counties).
+rad33<-as.data.frame(rad %>% filter((State!='US')&(State != 'PR'))%>% 
+                       filter(as.numeric(as.character(FIPS)) %%1000==0 ))
+
+df1<-as.data.frame(rad33  %>% 
+                     select(FIPS,State,County,starts_with('UnempRate')) )
+
+df2<-melt(df1, id.vars = c('FIPS','State','County'))
+
+df3<-as.data.frame( df2 %>%
+                      filter(variable %in% c("UnempRate2014","UnempRate2015",
+                                              "UnempRate2016","UnempRate2017","UnempRate2018"))%>%
+                      group_by(FIPS,State,County) %>%summarise(meanvalue=mean(value)))
+
+# Create a dataframe containing state and education level percentage info.
+df_edu<-as.data.frame(rad33 %>% 
+                        select(FIPS,starts_with('Ed')))
+df4<-merge(df3,df_edu,by='FIPS')
+
+#Cleveland Dotplot
+unemploy_edu <- df4 %>%
+  select(State,meanvalue, Ed1LessThanHSPct, Ed5CollegePlusPct,  
+         Ed4AssocDegreePct, Ed2HSDiplomaOnlyPct, Ed3SomeCollegePct)%>%
+  group_by(State)%>%
+  gather(key="Type", value="Rate", -State)
+
+ggplot(unemploy_edu, aes(Rate, fct_reorder2(State, Type=="meanvalue",Rate,.desc=FALSE),
+                color=Type))+
+  geom_point()+
+  ggtitle("State Unemployment Rate and Education Levels")+
+  theme(axis.text=element_text(size=10))
+
+
+df5<-melt(df4,id.vars = c("FIPS"  , "State"  , "County"  , "meanvalue"))
+
+```
+
+We are using this plot to illustrate the dependency relationship between unemployment rate and education level of each state. In order to present a more general trend, we decide to use data of each state, not individual county.\
+
+Variables Used:\
+*Ed1LessThanHSPct:* indicating the the percentage of adults 25 and over with no high school diploma or GEM, from 2014 to 2018.\
+*Ed2HSDiplomaOnlyPct:* indicating the the percentage of adults 25 and over with a high school diploma or GED only, from 2014 to 2018.\
+*Ed3SomeCollegePct:* indicating the percentage of adults 25 and over with some college experience, from 2014 to 2018.\
+*Ed4AssocDegreePct:* indicating the the percentage of adults 25 and over with associate's degree, from 2014 to 2018.\
+*ED5CollegePlusPct:* indicating the percentage of adults 25 and over with a 4-year college degree or more, from 2014 to 2018.\
+*meanvlue* The education level data is averaging from 2014 to 2018, so we decide to average the Unemployment rate from 2014 to 2018 and store this variable as meanvalue.\
+
+Each state has six corresponding data points, the purple ones represent the average unemployment rate from 2014 to 2018, and the remaining ones represent education levels, differentiated by colors.\
+Note: the average unemployment rate are arranging in a descending order; meaning state at the top has higher unemployment rate than state at the bottom.
+
+From the plot, we can see a relatively significant positive relationship between unemployment and Ed1LessThanHSPct, which means, as the rate of adults with no high school diploma increases, the unemployment rate is likely to increase; moreover, we can also see a relatively significant negative relationship between unemployment and Ed4AssocDegreePct, which means as the rate of adults with associate's degree increases, the unemployment rate is likely to decrease.The other levels of education seem to have a relatively weak dependency relation with unemployment rate.\
+
+To verify the dependency relation discussed above, we need to do further regression analysis.
+
+
+### Dependency relation between Unemployment Rate and Occupation Insdustries
+```{r, fig.width=12}
+# Get occupation percentage info of each state.
+df_occu<-as.data.frame(rad33 %>% 
+                         select(State,PctEmpAgriculture,PctEmpMining,
+                                PctEmpConstruction,PctEmpManufacturing,
+                                PctEmpTrade,PctEmpTrans,PctEmpInformation,
+                                PctEmpFIRE,PctEmpServices,PctEmpGovt))
+df_occu1<-melt(df_occu,id.vars = 'State')
+
+# plot unemployment rate and occupation percentage to check for possible correaltion.
+ggplot(df_occu1,aes(x=State,y=value,fill=variable))+
+  geom_bar(stat='identity')+
+  scale_fill_brewer(palette = 'Paired')+
+  theme(axis.text=element_text(size=12),axis.text.x = element_text(angle = 90))
+  
+
+df_occu3<-as.data.frame(rad33 %>% 
+                          select(State,  PctEmpServices,PctEmpConstruction,
+                                        PctEmpTrade,PctEmpManufacturing ) )
+
+df6<-merge(df3,df_occu3,by='State')
+
+# Cleveland Dotplot
+unemploy_occu <- df6 %>%
+  select(State,meanvalue, PctEmpServices,PctEmpConstruction,
+        PctEmpTrade,PctEmpManufacturing)%>%
+  group_by(State)%>%
+  gather(key="Type", value="Rate", -State)
+
+ggplot(unemploy_occu, aes(Rate, fct_reorder2(State, Type=="meanvalue",Rate,.desc=FALSE),
+                color=Type))+
+  geom_point()+
+  ggtitle("State Unemployment Rate and Occupation")+
+  theme(axis.text=element_text(size=12))+
+  labs(y="State")
+```
+
+We are using this plot to indicate possible dependency relation between unemployment rate and occupation percentage in the labor force of each state. In order to present a more general trend, we decide to use data of each state, not individual county.\
+
+*PctEmpAgriculture,PctEmpMining,PctEmpConstruction,PctEmpManufacturing,PctEmpTrade,PctEmpTrans,PctEmpInformation, PctEmpFIRE,PctEmpServices,PctEmpGovt* represents the percentage of the civilian labor force 16 and over employment in Agriculture, Mining, Construction, Manufacturing, Wholesale and Retail Trade, Transportation,Information services, Finance and Insurance and Real Estate and rental, Services, Public Administration respectively.\
+*meanvlue* The education level data is averaging from 2014 to 2018, so we decide to average the Unemployment rate from 2014 to 2018 and store this variable as meanvalue.\
+
+For research simplicity, we decide to take only four occupational industries.\
+According to our first plot, which indicates the percentage of every occupational industry of each state, PctEmpServices, PctEmpConstruction, PctEmpTrade, PctEmpManufacturing are the ones with the relative high percentage; therefore, we decide to take these four industries and check for dependency relation with unemployment rate.\
+
+According the our second plot,we can see a relatively significant positive relationship between unemployment rate and PctEmpServices, which means, as the percentage of civilian labor force 16 and over employment in Service increases, the unemployment rate is likely to increase.\
+
+Meanwhile, we also can see a relatively significant negative relationship between unemployment rate and PctEmpManufacturing, which means, as the percentage of civilian labor force 16 and over employment in Manufacturing increases, the unemployment rate is likely to decrease.\
+
+Similarly for PctEmpConstruction, and PctEmpTrade; as the percentage of civilian labor force 16 and over employment in Construction increases, the unemployment rate is likely to decrease; as the percentage of civilian labor force 16 and over employment in Wholesale and Retail Trade increases, the unemployment rate is likely to decrease; however the dependency relation between PctEmpConstruction,PctEmpTrade and unemployment rate seems to be relatively weak.\
+
+To verify the dependency relation discussed above, we need to do further regression analysis.
+
+### Dependency relation between Unemployment Rate and Poverty Rate
+
+```{r,fig.width=10}
+rad_poverty <- rad%>%
+  select(State,PovertyAllAgesPct,UnempRate2018) %>%
+  rename(unempoloyment = "UnempRate2018", poverty = "PovertyAllAgesPct")%>%
+  group_by(State)%>%
+  filter(row_number()==1)%>%
+  filter((State != "US")&(State != "PR"))%>%
+  gather(key = "Type", value = "Rate", -State)
+
+ggplot(rad_poverty, aes(Rate, fct_reorder2(State, Type=="unempoloyment", Rate, .desc = FALSE),
+           color = Type)) +
+  geom_point() + ggtitle("State unemployment rate and poverty rate 2018") + ylab("")+
+  theme(axis.text = element_text(size=8))
+```
+We are using this plot to verify if there is a correlation between unemployment rate and poverty rate in 2018.\
+
+Variables used:\
+*UnempRate2018*: Unemployment rate, 2018.\
+*PovertyAllAgesPct*: Poverty rate, 2018.\
+
+Each state has two corresponding data points, the blues ones represent unemployment rate, and the red ones represent poverty rate. \
+Note: the blue ones are arranging in a descending order; meaning state at the top has higher unemployment rate than state at the bottom.\
+
+According to the plot, each state has a higher poverty rate than the unemployment rate. Holding unemployment rate in a descending order, the spread of poverty rate seems to be random; hence, there is no visible correlation between poverty rate and unemployment rate.\
+
+### Dependency relation between poverty and natural amenities scale
+
+```{r,fig.width=10}
+rad_pov_hiame <- rad%>%
+  select(State,County,Hipov,HiAmenity,Low_Education_2015_update)%>%
+  drop_na%>%
+  mutate(Hipov = as.factor(Hipov))%>%
+  mutate(HiAmenity = as.factor(HiAmenity))%>%
+  mutate(Low_Education_2015_update = as.factor(Low_Education_2015_update))%>%
+  group_by(Hipov)%>%
+  filter(n() >= 1)
+
+levels(rad_pov_hiame$Hipov)<- c(NA, "no", "yes")
+rad_pov_hiame <- rad_pov_hiame%>%drop_na
+#levels(rad_pov_hiame$Low_Education_2015_update) <- c("no","yes")
+levels(rad_pov_hiame$HiAmenity)<- c("no","yes")
+levels(rad_pov_hiame$Low_Education_2015_update)<- c("no","yes")
+
+ggplot(data = rad_pov_hiame)+ 
+  geom_mosaic(aes(x=product(Low_Education_2015_update,Hipov,HiAmenity), fill = Low_Education_2015_update))+
+  theme(axis.text.x = element_text(angle = -30))+
+  labs(x="Low education:Hign amenity county", y="High proverty county", fill = "Low education")
+  
+```
+
+It is quite counterintuitive to find no relationship between poverty rate and unemployment rate. Hence, we would like to explore about what factors may have some relationship with poverty rate. By exploring the data we find a variable called Hiamenity which indicates whether the natural amenities scale of a county is high or not. The natural amenities scale is a measurement on the environmental qualities of a county. A county with a high natural amenities scale means the environmental qualities in that area is pleasant. Intuitive, people will prefer to live in a county with natural amenities scale. With this assumption, the populations in natural amenities scale would increase gradually. Then these population increases may finally benefit the local economy. Therefore, we would expected relatively more poverty counties also have low natural amenities scale. In order to explore the relationship between the poverty and natural amenities scale of counties, we used mosaic plot. According to the mosaic plot above,  the proportion of high poverty counties are very close between high natural amenities scale counties and other counties, which means that there are no strong relationship between poverty and natural amenities scale of a county. Then we introduced another factor which indicates whether a county is low education county or not. After comparing the proportion of low education counties in each group, we find that a low education county are also more likely be a high poverty county.
+
+### Dependency relation between poverty rate and college degree rate
+
+```{r,fig.height=15,fig.width=25}
+edu_degree <- rad %>% 
+  select(State,Ed1LessThanHSPct, PovertyAllAgesPct) %>%
+  group_by(State)%>%
+  filter(row_number()==1)%>%
+  filter((State != "US")&(State != "PR"))
+
+colnames(edu_degree)[2]<- "Low education"
+colnames(edu_degree)[3] <- "Poverty"
+
+
+edu_gather  <- edu_degree%>%
+  gather(key = "Type", value = "Rate", -State)
+
+
+ggplot(edu_gather,aes(Type,Rate,fill=Type))+
+     geom_bar(stat="identity",position="dodge")+
+    facet_geo(~ State, grid = "us_state_grid2")+
+    theme(text = element_text(size=22))+
+    coord_flip()
+
+```
+
+Then we further investigated the relationship between education and poverty rate. We defined the low education rate to be the percent of adults over 25 who have no high school diploma. And then we compare the low education rate and poverty rate of each state. According to those bar charts, the low education rate is generally close to the poverty rate of that state. In most northeast states, these two percentages are very close to each other. These findings confirmed the relationship between poverty rate and education.
+
+## Time series analysis
+
+```{r, fig.height=10,fig.width = 12}
+#Select states and its unemployment rate from 2010 to 2019
+state_unemployment_rate <- rad %>% 
+  select(State,UnempRate2010,UnempRate2011, UnempRate2012,UnempRate2013,UnempRate2014,UnempRate2015,UnempRate2016,UnempRate2017,UnempRate2018,UnempRate2019) %>%
+  group_by(State)%>%
+  filter(row_number()==1)%>%
+  filter((State != "US")&(State != "PR"))
+
+new_names <- c("State", 2010,2011,2012,2013,2014,2015,2016,2017,2018,2019)
+colnames(state_unemployment_rate) <- new_names
+state_unemployment_rate <- state_unemployment_rate%>%
+  gather(key = "Year", value = "Rate", -State)%>%
+  mutate(Year = as.numeric(Year))
+
+#Time series plot of unemployment rate of each state
+ggplot(state_unemployment_rate, aes(Year, Rate, color="red")) +
+  geom_line() +
+  facet_geo(~ State, grid = "us_state_grid2")+
+  scale_x_continuous(labels = function(Year) paste0("", substr(Year, 3, 4))) +
+  ylab("Unemployment Rate (%)")+
+  theme(text = element_text(size=12))+
+  theme(legend.position = "none")+
+  ggtitle("Unempolyment rate 2010-2019")
+```
+
+This graph shows the trends of unemployment rate in each state from 2010 to 2019. In this decade, the unemployment rate decreased uniformly in every state of the U.S. Besides the decreeing in the percentage itself, the variance of the unemployment rate also decreased quite a lot. In 2010, the unemployment rates in Nevada and California is above 15% and the unemployment rate in Nebraska is only about 5%. Their differences are around 10%. But in 2019, the unemployment rates of different states are very similar. They are all around 3%. Although there are some small fluctuation on the unemployment rate in some central states, the unemployment rates decreased quite smoothly. In general the unemployment rate of most states reached its lowest point in 2019. But we can also notice that in Hawaii and some central states such as Iowa, Mississippi, Wisconsin, the unemployment rate increased in 2019.\
+
+
+## Summary
+
+Both of the poverty rate and unemployment rate are highly correlated with geographical factors. In particular, states in the mid-US tend to have lower unemployment rates and stats in the northern US tend to have lower poverty rate. The unemployment rate are correlated with the education conditions and industrial structures in that state. And the poverty rate are also correlated with the low education rate. However, a high unemployment rate is not always accompanied by a high poverty rate. Despite the geographical differences, the unemployment rates of all states in the US have dropped a lot over the last decade.

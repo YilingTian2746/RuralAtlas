@@ -29,13 +29,15 @@ The objective of this project is to analyze socioeconomic status of all US count
 
 ### Missing value pattern by state and three special binary variables
 
-Based on the plot below, we conclude that most of the states do not have missing values; on the contrary, PR(Puerto Rico), AK(Alaska) and HI(Hawaii) have a significant number of missing values. This could be due to the fact that PR, HI and AK aer far from the other states of the US; in addition, PR and HI are islands with very remote counties. Therefore, it could be hard to collect comprehensive data in these states, which results in the missing data. \
+Based on the plot below, we conclude that most of the states do not have missing values; on the contrary, PR(Puerto Rico), AK(Alaska) and HI(Hawaii) have a significant number of missing values. This could be due to the fact that PR, HI and AK are far from the other states of the US; in addition, PR and HI are islands with very remote counties. Therefore, it could be hard to collect comprehensive data in these states, which results in the missing data. \
 
 CO(Colorado), IL(Illinois) and VA(Virgina) also have a very small percentage of missing values (< 2%) for no obvious reasons. \
 
 ```{r, fig.height=6, fig.width=10}
+
 # preprocess data
 rad_binary <- rad[2:nrows, c(2, 83, 84, 85)] %>%
+
   rename(Low_Educ = Low_Education_2015_update) %>% # completely for visual purpose (i.e to save some space)
   dplyr::filter(State == lag(State)) %>% # the reason for this step is explained above
   gather(key, value, -State) %>%
@@ -66,6 +68,7 @@ A similar pattern exists in the second plot: most of the states do not have any 
 ```{r, fig.height=20, fig.width=12}
 # preprocess data
 rad_rest <- rad[2:nrows, c(2, 4:82)] %>%
+
   gather(key, value, -State) %>%
   mutate(missing = ifelse(is.na(value), 1, 0)) %>%
   group_by(State, key) %>%
