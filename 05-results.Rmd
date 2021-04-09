@@ -6,6 +6,8 @@
 #install.packages("devtools")
 #devtools::install_github("UrbanInstitute/urbnmapr", force = TRUE)
 #devtools::install_github("UrbanInstitute/urbnthemes", force = TRUE)
+# install.packages("reshape2")
+# install.packages("psych")
 library(dplyr)
 library(tidyverse)
 library(urbnmapr)
@@ -22,6 +24,7 @@ library(geofacet)
 library(broom)
 library(ggpubr)
 library(ggmosaic)
+library(stringr)
 ```
 
 ```{r}
@@ -61,10 +64,6 @@ Lastly, note that the color scale for each graph is different. For instance, pov
 
 ### Unemployment rate\
 
-This demonstrate how the unemployment rate varies by different counties and states respectively. Instead of using the number of unemployed people within each county, unemployment rate is used to avoid confusion since overall population varies significantly between states. The same rationale applies to some of graphs below too.\
-
-According to these maps, the general trend is that the states in the mid-US and above TX(Texas) tend to have lower unemployment rate, while counties with highest unemployment rate are in AK, AL(Alabama), CA(California) and AZ(Arizona). One thing to notice is that the exact unemployment rate does depend on the specific county. For example, the state average for SD(South Dakota) is very low, yet three of the counties have relatively high unemployment rate (above 12%). Moreover, some county-level data in AK is missing as discussed in Missing Data. \
-
 ```{r}
 # Extract only the UnempRate columns
 UnempRate_data <- rad_merge[2:nrows, c(1,2,4:11,27,39,40,42,62)] 
@@ -78,7 +77,6 @@ UnempRate_data <- UnempRate_data %>% select(county_fips, AvgUnempRate1907)
 
 # Merge with counties
 UnempRate_data <- left_join(UnempRate_data, counties, by = "county_fips")
-UnempRate_data[UnempRate_data$county_fips == '15005', ]
 
 # Convert NaN values to na
 UnempRate_data[is.nan(UnempRate_data)] <- NA
@@ -103,15 +101,12 @@ UnempRate_data %>%
   guides(fill = guide_legend(ncol = 4))
 ```
 
+This demonstrate how the unemployment rate varies by different counties and states respectively. Instead of using the number of unemployed people within each county, unemployment rate is used to avoid confusion since overall population varies significantly between states. The same rationale applies to some of graphs below too.\
+
+According to these maps, the general trend is that the states in the mid-US and above TX(Texas) tend to have lower unemployment rate, while counties with highest unemployment rate are in AK, AL(Alabama), CA(California) and AZ(Arizona). One thing to notice is that the exact unemployment rate does depend on the specific county. For example, the state average for SD(South Dakota) is very low, yet three of the counties have relatively high unemployment rate (above 12%). Moreover, some county-level data in AK is missing as discussed in Missing Data. \
+\
 
 ### Education rate\
-
-In this section, "high education" refers to a 4-year college or an associate's degree. For similar reasons as discussed above, the rate of high education is used instead of the total number of people with high education. \
-
-An important thing to note is that the data only accounts for adults 25 years old and over. Since it is possible and common to attain a college or associate's degree before the age of 25, we should keep in mind that the data is not comprehensive. \
-
-The trend of high education is not as obvious as the unemployment rate; however, we can see that the states in the northern US has more counties with high percentages of people with high education when compared to the southern US. No county has more than 90% of people with high education, and the highest education rate exist in WA(Washington), MT(Montana), WY(Wyoming) and CO(Colorado). \
-\
 
 ```{r}
 # Extract only the Ed5CollegePlusPct and Ed4AssocDegreePct columns
@@ -152,17 +147,20 @@ Educ_data %>%
 ```
 
 
+In this section, "high education" refers to a 4-year college or an associate's degree. For similar reasons as discussed above, the rate of high education is used instead of the total number of people with high education. \
+
+An important thing to note is that the data only accounts for adults 25 years old and over. Since it is possible and common to attain a college or associate's degree before the age of 25, we should keep in mind that the data is not comprehensive. \
+
+The trend of high education is not as obvious as the unemployment rate; however, we can see that the states in the northern US has more counties with high percentages of people with high education when compared to the southern US. No county has more than 90% of people with high education, and the highest education rate exist in WA(Washington), MT(Montana), WY(Wyoming) and CO(Colorado). \
+\
+
 
 ### Poverty rate \
 
-For similar reasons as discussed above, the poverty rate data is used instead of the total number of people in poverty. \
-
-Based on this graph, the general pattern is that more counties in the southern US states have relatively high poverty rate than the northern counties; again, poverty rate varies between counties with each state. For instance, although SD(South Dakota) seems to have low poverty rate in general, some of its counties have more than 50% poverty rate. This observation is somewhat consistent with the high education trend since it makes sense that counties with more people obtaining high education tend to have less poverty issues. \
-\
 
 ```{r}
 # Extract only the PovertyAllAgesPct column
-Poverty_data <- rad_merge[2:nrows, c(1,2,78)] 
+Poverty_data <- rad_merge[2:nrows, c(1,2,79)] 
 
 # Only select FIPs and average unemployment rate columns
 Poverty_data <- Poverty_data %>% select(county_fips, PovertyAllAgesPct)
@@ -194,16 +192,17 @@ Poverty_data %>%
   guides(fill = guide_legend(ncol = 4))
 ```
 
-### Per capita income \
+For similar reasons as discussed above, the poverty rate data is used instead of the total number of people in poverty. \
 
-It is not very obvious as which part of the US has higher per capita income; however, if looking closely, it seems that the south-eastern counties in general and some of the western counties have lower per capita income. This pattern is very similar to that of the high education graph, which suggests that there might be a dependency relationship between education level and average income. It is also interesting to notice that for most of the states, there is one or more counties with a singificantly higher average income than the other counties. \
-
-We can also see that one of the counties (Rio Arriba) in New Mexico is missing per capita income data. \
+Based on this graph, the general pattern is that more counties in the southern US states have relatively high poverty rate than the northern counties; again, poverty rate varies between counties with each state. For instance, although SD(South Dakota) seems to have low poverty rate in general, some of its counties have more than 50% poverty rate. This observation is somewhat consistent with the high education trend since it makes sense that counties with more people obtaining high education tend to have less poverty issues. \
 \
+
+
+### Per capita income \
 
 ```{r}
 # Extract only the per capita income column
-Income_data <- rad_merge[2:nrows, c(1, 2, 76)] 
+Income_data <- rad_merge[2:nrows, c(1, 2, 77)] 
 
 # Only select FIPs and the per capita income column
 Income_data <- Income_data %>% select(county_fips, PerCapitaInc)
@@ -233,6 +232,11 @@ Income_data %>%
   theme(legend.position="bottom", legend.direction="horizontal", plot.title = element_text(size=11)) +
   guides(fill = guide_legend(ncol = 4))
 ```
+It is not very obvious as which part of the US has higher per capita income; however, if looking closely, it seems that the south-eastern counties in general and some of the western counties have lower per capita income. This pattern is very similar to that of the high education graph, which suggests that there might be a dependency relationship between education level and average income. It is also interesting to notice that for most of the states, there is one or more counties with a singificantly higher average income than the other counties. \
+
+We can also see that one of the counties (Rio Arriba) in New Mexico is missing per capita income data. \
+\
+
 
 ```{r}
 # This downloaded data is uploaded to Github for the Interactive Component. 
