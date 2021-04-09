@@ -17,7 +17,7 @@ colnames(rad_CC)[1] <- "FIPS"
 
 ```{r}
 rad_people <- rad_people %>%
-  select(FIPS,Ed1LessThanHSPct,Ed5CollegePlusPct,Ed4AssocDegreePct,Ed2HSDiplomaOnlyPct)
+  select(FIPS,Ed1LessThanHSPct,Ed5CollegePlusPct,Ed4AssocDegreePct,Ed2HSDiplomaOnlyPct,Ed3SomeCollegePct)
 
 rad_CC <- rad_CC %>% 
   select(FIPS,Hipov,HiAmenity,Low_Education_2015_update)
