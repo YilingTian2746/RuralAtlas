@@ -36,7 +36,7 @@ CO(Colorado), IL(Illinois) and VA(Virgina) also have a very small percentage of 
 ```{r, fig.height=6, fig.width=10}
 
 # preprocess data
-rad_binary <- rad[2:nrows, c(2, 83, 84, 85)] %>%
+rad_binary <- rad[2:nrows, c(2, 84, 85, 86)] %>%
 
   rename(Low_Educ = Low_Education_2015_update) %>% # completely for visual purpose (i.e to save some space)
   dplyr::filter(State == lag(State)) %>% # the reason for this step is explained above
@@ -67,7 +67,7 @@ A similar pattern exists in the second plot: most of the states do not have any 
 
 ```{r, fig.height=20, fig.width=12}
 # preprocess data
-rad_rest <- rad[2:nrows, c(2, 4:82)] %>%
+rad_rest <- rad[2:nrows, c(2, 4:83)] %>%
 
   gather(key, value, -State) %>%
   mutate(missing = ifelse(is.na(value), 1, 0)) %>%
@@ -77,9 +77,11 @@ rad_rest <- rad[2:nrows, c(2, 4:82)] %>%
 # generate the plot
 ggplot(rad_rest, aes(x =  fct_reorder(fct_rev(State), -percent_missing, sum), y =key, fill = percent_missing)) +
   geom_tile(color = "grey") +
-  ggtitle("Missing pattern of socioeconomic variables by US states") +
   scale_fill_gradientn(values = scales::rescale(c(0, 20, 40, 60, 80, 100)), 
                        colors = c("lightyellow", "darkgreen", "dodgerblue2")) +
+  xlab("States") +
+  ylab("Socioeconomic variables") +
+  ggtitle("Missing pattern of socioeconomic variables by US states") +
   theme_bw() +
   theme(axis.text.x=element_text(angle = 90, hjust = 1, size = 12), 
         axis.text.y=element_text(hjust = 1, size = 12), 

@@ -46,7 +46,7 @@ The first step was to import all the data except for the veterans.csv. This is b
 
 After the importing step, we selected a subset of variables from the People and County Classification dataset, and kept all the variables for the Jobs and Income dataset. Specifically, the variables selected from the People dataset are the rates of different education levels, and the variables selected from the County Classification dataset describe poverty, natural amenity and low education classifications. These attributes are highly related to our topic, and all other not so applicable variables are discarded.\
 
-We noticed that the columns in the data frames already have proper data type; hence we didn't make modifications on that. However we converted the FIPs variable into a factor to make future analysis and graphing easier.\
+We noticed that the columns in the data frames already have proper data type; hence we didn't make modifications on that. However we plan to convert the FIPs variable into a factor during future analysis and graphing.\
 
 For the last step, we joined the cleaned data into one data frame using the FIPs since FIPs is like an ID and is unique for each county. This new data frame was exported to a csv file under the folder data/cleaned; it will be used for the analyses in the rest of this report.\
 
