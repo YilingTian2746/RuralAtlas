@@ -377,7 +377,7 @@ ggplot(rad_poverty, aes(Rate, fct_reorder2(State, Type=="unempoloyment", Rate, .
   geom_point() + ggtitle("State unemployment rate and poverty rate 2018") + ylab("")+
   theme(axis.text = element_text(size=8))
 ```
-we are using this plot to verify if there is a correlation between unemployment rate and poverty rate in 2018.\
+We are using this plot to verify if there is a correlation between unemployment rate and poverty rate in 2018.\
 
 Variables used:\
 *UnempRate2018*: Unemployment rate, 2018.\
@@ -469,7 +469,8 @@ ggplot(state_unemployment_rate, aes(Year, Rate, color="red")) +
   ggtitle("Unempolyment rate 2010-2019")
 ```
 
-This graph shows the trends of unemployment rate in each state from 2010 to 2019. In this decade, the unemployment rate decreased uniformly in every state of the U.S. Besides the decreeing in the percentage itself, the variance of the unemployment rate also decreased quite a lot. In 2010, the unemployment rates in Nevada and California is above 15% and the unemployment rate in Nebraska is only about 5%. Their differences are around 10%. But in 2019, the unemployment rates of different states are very similar. They are all around 3%. Although there are some small fluctuation on the unemployment rate in some central states, the unemployment rates decreased quite smoothly. In general the unemployment rate of most states reached its lowest point in 2019. But we can also notice that in Hawaii and some central states such as Iowa, Mississippi, Wisconsin, the unemployment rate increased in 2019.
+This graph shows the trends of unemployment rate in each state from 2010 to 2019. In this decade, the unemployment rate decreased uniformly in every state of the U.S. Besides the decreeing in the percentage itself, the variance of the unemployment rate also decreased quite a lot. In 2010, the unemployment rates in Nevada and California is above 15% and the unemployment rate in Nebraska is only about 5%. Their differences are around 10%. But in 2019, the unemployment rates of different states are very similar. They are all around 3%. Although there are some small fluctuation on the unemployment rate in some central states, the unemployment rates decreased quite smoothly. In general the unemployment rate of most states reached its lowest point in 2019. But we can also notice that in Hawaii and some central states such as Iowa, Mississippi, Wisconsin, the unemployment rate increased in 2019.\
+
 
 ## Summary
 
