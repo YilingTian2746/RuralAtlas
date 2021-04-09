@@ -34,7 +34,7 @@ CO(Colorado), IL(Illinois) and VA(Virgina) also have a very small percentage of 
 
 ```{r, fig.height=6, fig.width=10}
 # process data
-rad_binary <- rad[2:nrows, c(2, 83, 84, 85)] %>%
+rad_binary <- rad[2:nrows, c(2, 84, 85, 86)] %>%
   rename(Low_Educ = Low_Education_2015_update) %>% # completely for visual purpose (i.e to save some space)
   dplyr::filter(State == lag(State)) %>% # the reason for this step is explained above
   gather(key, value, -State) %>%
@@ -63,7 +63,7 @@ A similar pattern exists in the second plot: most of the states do not have any 
 
 
 ```{r, fig.height=20, fig.width=12}
-rad_rest <- rad[2:nrows, c(2, 4:82)] %>%
+rad_rest <- rad[2:nrows, c(2, 4:83)] %>%
   gather(key, value, -State) %>%
   mutate(missing = ifelse(is.na(value), 1, 0)) %>%
   group_by(State, key) %>%
