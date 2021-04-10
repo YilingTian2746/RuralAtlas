@@ -1,0 +1,184 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="utf-8">
+        <style>
+            .counties {
+              fill: none;
+            }
+            .states {
+              fill: none;
+              stroke: #fff;
+              stroke-linejoin: round;
+            }
+            div.tooltip {
+              position: absolute;
+              text-align: center;
+              width: 180px;
+              height: 53px;
+              padding: 2px;
+              font: 12px sans-serif;
+              background: lavender;
+              border: 0px;
+              border-radius: 8px;
+              pointer-events: none;
+            }
+        </style>
+
+        <script src="https://d3js.org/d3.v6.js"></script>
+        <script src="https://d3js.org/d3-scale-chromatic.v1.min.js"></script>
+        <script src="https://d3js.org/topojson.v2.min.js"></script>
+    </head>
+
+    <body>
+        <div id="chart" style="width:700px; height:200px; float:left;">
+            <h3>"Hover on the map" to see the average unemployment rate of each county</h3>
+            <p>State: <span id="state"></span></p>
+            <p>County: <span id="county"></span></p>
+            <p>Unemployment rate: <span id="unemprate"></span></p>
+	   </div>
+        
+        <svg width="960" height="800"></svg>
+        
+        <script>
+
+            var svg = d3.select("svg");
+            var width = +svg.attr("width");
+            var height = +svg.attr("height");
+            
+            // For displaying information when hovering
+            var county = new Map();
+            var state = new Map();
+            var unemprate = new Map();
+            
+            var state_disp = d3.select("#state")
+            var county_disp = d3.select("#county")
+            var unemprate_disp = d3.select("#unemprate")
+            
+            var div = d3.select("body").append("div")
+                .attr("class", "tooltip")
+                .style("opacity", 0);
+            
+            // For displaying map and legend
+            var path = d3.geoPath();
+        
+            var x = d3.scaleLinear()
+                .domain([0, 24])
+
+            var color = d3.scaleThreshold()
+                .domain(d3.range(0, 28, 4))
+                .range(d3.schemeYlGnBu[8]);
+            
+            var legendWidth = 58;
+            var legendHeight = 20;
+            var legendKeys = ["(0, 4]", "(4, 8]", "(8, 12]", "(12, 16]", "(10, 20]", "(20, 24]"];
+            
+            var legendColor = d3.scaleOrdinal()
+                .domain(legendKeys)
+                .range(d3.schemeYlGnBu[8]);
+
+            var g = svg.append("g") 
+                .attr("class", "key")
+                .attr("transform", "translate(0,40)");
+            
+            // Map
+            g.selectAll("rect")
+              .data(color.range().map(function(d) {
+                  d = color.invertExtent(d);
+                  if (d[0] == null) d[0] = x.domain()[0];
+                  if (d[1] == null) d[1] = x.domain()[1];
+                  return d;
+                }))
+            
+            // Legend
+            g.append("text")
+                .attr("class", "caption")
+                .attr("x", 400)
+                .attr("y", 600)
+                .attr("fill", "#000")
+                .attr("text-anchor", "start")
+                .attr("font-weight", "bold")
+                .text("Average unemployment rate in %");
+            
+            g.selectAll("legendBlocks")
+                .data(legendKeys)
+                .enter()
+                .append("rect")
+                    .attr("x", function(d,i){ return 400 + i * (legendWidth)})
+                    .attr("y", 620)
+                    .attr("width", legendWidth)
+                    .attr("height", legendHeight)
+                    .style("fill", function(d){ return legendColor(d)})
+
+            g.selectAll("legendLabels")
+                .data(legendKeys)
+                .enter()
+                .append("text")
+                    .attr("x", function(d,i){ return 400 + i * (legendWidth)})
+                    .attr("y", 620 + legendHeight * 1.5)
+                    .style("fill", "#000")
+                    .text(function(d){ return d})
+                    .attr("text-anchor", "right")
+                    .style("alignment-baseline", "middle")
+
+            // Load data and json topology
+            var rowConverter = function(d) { 
+                  state.set(d.county_fips, d.state_name);
+                  county.set(d.county_fips, d.county_name);
+                  unemprate.set(d.county_fips, +d.AvgUnempRate1907);
+            }
+
+            var promises = [
+              d3.json("https://d3js.org/us-10m.v1.json"),
+              d3.csv("https://raw.githubusercontent.com/IvyLiu727/RuralAtalasDataUS/main/UnempRate_data.csv", rowConverter)
+            ]
+            Promise.all(promises).then(ready)
+            
+            // Building the choropleth map with callback
+            function ready([us]) {
+              svg.append("g")
+                  .attr("class", "counties")
+                .selectAll("path")
+                .data(topojson.feature(us, us.objects.counties).features)
+                .enter()
+                  .append("path")
+                  .attr("fill", function(d) { return color(d.rate = unemprate.get(d.id)); })
+                  .attr("stroke", "#fff")
+                  .attr("stroke-opacity", 0.2)
+                  .attr("d", path)
+                
+                // Interactive component with topptips
+                .on("mouseover", function(event,d) {
+                   div.transition()
+                     .duration(200)
+                     .style("opacity", .9);
+                   div.html("State: " + state.get(d.id) + 
+                            "<br/> County: " + county.get(d.id) + 
+                            "<br/> Unemployment rate: " + unemprate.get(d.id) + "%")
+                     .style("left", (event.pageX) + "px")
+                     .style("top", (event.pageY - 28) + "px");
+                    state_disp.text(state.get(d.id))
+                    county_disp.text(county.get(d.id))
+                    unemprate_disp.text(unemprate.get(d.id) + "%")
+                 })
+                
+                .on("mouseout", function(d) {
+                   div.transition()
+                     .duration(200)
+                     .style("opacity", 0);
+                  state_disp.text("")
+                  county_disp.text("")
+                  unemprate_disp.text("")
+                });
+                
+              svg.append("path")
+                  .datum(topojson.mesh(us, us.objects.states, function(a, b) { return a !== b; }))
+                  .attr("class", "states")
+                  .attr("d", path);
+            }
+        // CODE SOURCE: 
+        //    https://bl.ocks.org/adamjanes/6cf85a4fd79e122695ebde7d41fe327f?fbclid=IwAR2QKWkG3XRKzfW4Wx_mbQrfPxlpGwaghpjVEOZCe-2uWy3GM9fcHQJ5pf4
+        </script>
+
+    </body>
+</html>
