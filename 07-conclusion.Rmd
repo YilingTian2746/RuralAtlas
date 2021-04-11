@@ -10,6 +10,5 @@ A lot of variables we have elaborated in our project are presented by averaging 
 In order to indicate possible trend or correlation among socioeconomic factors, we normally need data from a relative long time frame; however, a considerable large number of variables only have data on a specific year, such as, poverty rate which is another important socioeconomic factor we include in out project. Since it only has data of 2018, when we try to find possible correlation between poverty rate and other variables, we can only demonstrate the general pattern on year of 2018.\
 
 
-
 ## Future directions\
-We could look into seemly outliers or usual trend and try to figure out the reasoning behind it.
+We could look into seemly outliers or usual trend and try to figure out the reasoning behind it. Therefore, we need look for other resources which contains all these socioeconomic factors in a relatively long time frame to explore the changing patterns of these factors in different regions of the United States. Based solely upon these plots, we can find some plausible correlations between different socioeconomic, geographical and other factors. But in order to have a deeper and more comprehensive understanding on the dependencies of these factors, we need to build some statistical models or even implement some machine leaning algorithms on this dataset.
