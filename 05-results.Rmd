@@ -320,7 +320,9 @@ Without a doubt, we cannot assure the relationship between Unemployment and Educ
 
 
 ### Dependency relation between Unemployment Rate and Occupation Industries
+
 ```{r,fig.height=8,fig.width=12}
+
 # Get occupation percentage info of each state.
 df_occu<-as.data.frame(rad33 %>% 
                          select(State,PctEmpAgriculture,PctEmpMining,

@@ -1,3 +1,5 @@
 # Interactive component
 
+<iframe src="interactive.html" width="100%" height="1200"></iframe>
 
+Some of the code for building a static choropleth map is borrowed from this source: https://bl.ocks.org/adamjanes/6cf85a4fd79e122695ebde7d41fe327f?fbclid=IwAR2QKWkG3XRKzfW4Wx_mbQrfPxlpGwaghpjVEOZCe-2uWy3GM9fcHQJ5pf4
