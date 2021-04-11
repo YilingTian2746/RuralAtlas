@@ -6,8 +6,8 @@
 #install.packages("devtools")
 #devtools::install_github("UrbanInstitute/urbnmapr", force = TRUE)
 #devtools::install_github("UrbanInstitute/urbnthemes", force = TRUE)
-# install.packages("reshape2")
-# install.packages("psych")
+#install.packages("reshape2")
+#install.packages("psych")
 library(dplyr)
 library(tidyverse)
 library(urbnmapr)
@@ -21,7 +21,7 @@ library(psych)
 #install.packages("ggmosaic")
 #install.packages("geofacet")
 library(geofacet)
-library(broom)
+#library(broom)
 library(ggpubr)
 library(ggmosaic)
 library(stringr)
@@ -251,7 +251,7 @@ write.csv(UnempRate_data[, c(1, 2, 11, 13)],"data/d3/UnempRate_data.csv", row.na
 ## Dependency Relationship analysis
 
 ### Dependency relation between Unemployment Rate and Education levels.
-```{r,fig.width=10}
+```{r, fig.height=6, fig.width=8}
 # Only takes the general information of the whole state(average date of all counties).
 rad33<-as.data.frame(rad %>% filter((State!='US')&(State != 'PR'))%>% 
                        filter(as.numeric(as.character(FIPS)) %%1000==0 ))
@@ -278,18 +278,31 @@ unemploy_edu <- df4 %>%
   group_by(State)%>%
   gather(key="Type", value="Rate", -State)
 
+cb_palette <- c("#999999", "#E69F00","356B4E9","009E73",
+                "#F0E442","3D55E00","#CC79A7")
 ggplot(unemploy_edu, aes(Rate, fct_reorder2(State, Type=="meanvalue",Rate,.desc=FALSE),
                 color=Type))+
   geom_point()+
+  scale_color_manual(values = cb_palette)+
   ggtitle("State Unemployment Rate and Education Levels")+
-  theme(axis.text=element_text(size=10))
+  theme(plot.title=element_text(size=18))+
+  ylab('State')+
+  theme(axis.title.y = element_text(size=16))+
+  xlab('Rate')+
+  theme(axis.title.x = element_text(size=16))+
+  theme(legend.position="right", legend.direction="vertical", plot.title = element_text(size=18))
 
 
-df5<-melt(df4,id.vars = c("FIPS"  , "State"  , "County"  , "meanvalue"))
+
 
 ```
 
 We are using this plot to illustrate the dependency relationship between unemployment rate and education level of each state. In order to present a more general trend, we decide to use data of each state, not individual county.\
+
+Note: \
+1.This graph excludes PR; since we don't have information on education levels on the state level.\
+2.Several counties of AK and HI have missing values on unemployment rate; however, since we are interested in finding possible trend between unemployment rate and poverty rate on the state level, the missing values will not significantly affect our result.\
+3.the average unemployment rate are arranging in a descending order; meaning state at the top has higher unemployment rate than state at the bottom.\
 
 Variables Used:\
 *Ed1LessThanHSPct:* indicating the the percentage of adults 25 and over with no high school diploma or GEM, from 2014 to 2018.\
@@ -300,15 +313,14 @@ Variables Used:\
 *meanvlue* The education level data is averaging from 2014 to 2018, so we decide to average the Unemployment rate from 2014 to 2018 and store this variable as meanvalue.\
 
 Each state has six corresponding data points, the purple ones represent the average unemployment rate from 2014 to 2018, and the remaining ones represent education levels, differentiated by colors.\
-Note: the average unemployment rate are arranging in a descending order; meaning state at the top has higher unemployment rate than state at the bottom.
 
 From the plot, we can see a relatively significant positive relationship between unemployment and Ed1LessThanHSPct, which means, as the rate of adults with no high school diploma increases, the unemployment rate is likely to increase; moreover, we can also see a relatively significant negative relationship between unemployment and Ed4AssocDegreePct, which means as the rate of adults with associate's degree increases, the unemployment rate is likely to decrease.The other levels of education seem to have a relatively weak dependency relation with unemployment rate.\
 
-To verify the dependency relation discussed above, we need to do further regression analysis.
+Without a doubt, we cannot assure the relationship between Unemployment and Education Levels; therefore, in order to verify the dependency relation discussed above, we need to do further regression analysis.\
 
 
-### Dependency relation between Unemployment Rate and Occupation Insdustries
-```{r, fig.width=12}
+### Dependency relation between Unemployment Rate and Occupation Industries
+```{r,fig.height=8,fig.width=12}
 # Get occupation percentage info of each state.
 df_occu<-as.data.frame(rad33 %>% 
                          select(State,PctEmpAgriculture,PctEmpMining,
@@ -319,9 +331,16 @@ df_occu1<-melt(df_occu,id.vars = 'State')
 
 # plot unemployment rate and occupation percentage to check for possible correaltion.
 ggplot(df_occu1,aes(x=State,y=value,fill=variable))+
+  ggtitle("Occupation Distribution of Labor Force")+
+  theme(plot.title=element_text(size=20))+
+  ylab('State')+
+  theme(axis.title.y = element_text(size=19))+
+  xlab('Rate')+
+  theme(axis.title.x = element_text(size=19))+
   geom_bar(stat='identity')+
   scale_fill_brewer(palette = 'Paired')+
-  theme(axis.text=element_text(size=12),axis.text.x = element_text(angle = 90))
+  theme(axis.text=element_text(size=18),axis.text.x = element_text(angle = 90),
+        legend.title = element_text(size=18))
   
 
 df_occu3<-as.data.frame(rad33 %>% 
@@ -329,7 +348,9 @@ df_occu3<-as.data.frame(rad33 %>%
                                         PctEmpTrade,PctEmpManufacturing ) )
 
 df6<-merge(df3,df_occu3,by='State')
+```
 
+```{r, fig.height=6, fig.width=8}
 # Cleveland Dotplot
 unemploy_occu <- df6 %>%
   select(State,meanvalue, PctEmpServices,PctEmpConstruction,
@@ -337,15 +358,26 @@ unemploy_occu <- df6 %>%
   group_by(State)%>%
   gather(key="Type", value="Rate", -State)
 
+cb_palette <- c("#999999", "#E69F00","356B4E9","009E73",
+                "#F0E442","30072B2","3D55E00","#CC79A7")
 ggplot(unemploy_occu, aes(Rate, fct_reorder2(State, Type=="meanvalue",Rate,.desc=FALSE),
                 color=Type))+
   geom_point()+
+  scale_color_manual(values = cb_palette)+
   ggtitle("State Unemployment Rate and Occupation")+
-  theme(axis.text=element_text(size=12))+
-  labs(y="State")
+  theme(plot.title=element_text(size=18))+
+  ylab('State')+
+  theme(axis.title.y = element_text(size=16))+
+  xlab('Rate')+
+  theme(axis.title.x = element_text(size=16))+
+  theme(legend.position="right", legend.direction="vertical", legend.title = element_text(size=16))
 ```
 
 We are using this plot to indicate possible dependency relation between unemployment rate and occupation percentage in the labor force of each state. In order to present a more general trend, we decide to use data of each state, not individual county.\
+
+Note: \
+1.Several counties of AK, NM and AV have missing values; however, since we are interested in finding possible trend between unemployment rate and occupational industry on the state level, the missing values will not significantly affect our result.\
+2.The average unemployment rate are arranging in a descending order; meaning state at the top has higher unemployment rate than state at the bottom.\
 
 *PctEmpAgriculture,PctEmpMining,PctEmpConstruction,PctEmpManufacturing,PctEmpTrade,PctEmpTrans,PctEmpInformation, PctEmpFIRE,PctEmpServices,PctEmpGovt* represents the percentage of the civilian labor force 16 and over employment in Agriculture, Mining, Construction, Manufacturing, Wholesale and Retail Trade, Transportation,Information services, Finance and Insurance and Real Estate and rental, Services, Public Administration respectively.\
 *meanvlue* The education level data is averaging from 2014 to 2018, so we decide to average the Unemployment rate from 2014 to 2018 and store this variable as meanvalue.\
@@ -359,11 +391,11 @@ Meanwhile, we also can see a relatively significant negative relationship betwee
 
 Similarly for PctEmpConstruction, and PctEmpTrade; as the percentage of civilian labor force 16 and over employment in Construction increases, the unemployment rate is likely to decrease; as the percentage of civilian labor force 16 and over employment in Wholesale and Retail Trade increases, the unemployment rate is likely to decrease; however the dependency relation between PctEmpConstruction,PctEmpTrade and unemployment rate seems to be relatively weak.\
 
-To verify the dependency relation discussed above, we need to do further regression analysis.
+Without a doubt, we cannot assure the relationship between unemployment and occupational industry proportion; therefore, in order to verify the dependency relation discussed above, we need to do further regression analysis.\
 
 ### Dependency relation between Unemployment Rate and Poverty Rate
 
-```{r,fig.width=10}
+```{r, fig.height=6, fig.width=8}
 rad_poverty <- rad%>%
   select(State,PovertyAllAgesPct,UnempRate2018) %>%
   rename(unempoloyment = "UnempRate2018", poverty = "PovertyAllAgesPct")%>%
@@ -390,7 +422,7 @@ According to the plot, each state has a higher poverty rate than the unemploymen
 
 ### Dependency relation between poverty and natural amenities scale
 
-```{r,fig.width=10}
+```{r, fig.height=6, fig.width=8}
 rad_pov_hiame <- rad%>%
   select(State,County,Hipov,HiAmenity,Low_Education_2015_update)%>%
   drop_na%>%
