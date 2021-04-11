@@ -307,7 +307,7 @@ From the plot, we can see a relatively significant positive relationship between
 To verify the dependency relation discussed above, we need to do further regression analysis.
 
 
-### Dependency relation between Unemployment Rate and Occupation Insdustries
+### Dependency relation between Unemployment Rate and Occupation Industries
 ```{r, fig.width=12}
 # Get occupation percentage info of each state.
 df_occu<-as.data.frame(rad33 %>% 
