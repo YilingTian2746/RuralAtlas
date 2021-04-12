@@ -10,7 +10,7 @@ results
 geographical-analysis
 dependency-relationship-analysis
 dependency-relation-between-unemployment-rate-and-education-levels.
-dependency-relation-between-unemployment-rate-and-occupation-insdustries
+dependency-relation-between-unemployment-rate-and-occupation-industries
 dependency-relation-between-unemployment-rate-and-poverty-rate
 dependency-relation-between-poverty-and-natural-amenities-scale
 dependency-relation-between-poverty-rate-and-college-degree-rate
