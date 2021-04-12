@@ -25,6 +25,7 @@ library(geofacet)
 library(ggpubr)
 library(ggmosaic)
 library(stringr)
+library(ggthemes)
 ```
 
 ```{r}
@@ -278,12 +279,11 @@ unemploy_edu <- df4 %>%
   group_by(State)%>%
   gather(key="Type", value="Rate", -State)
 
-cb_palette <- c("#999999", "#E69F00","356B4E9","009E73",
-                "#F0E442","3D55E00","#CC79A7")
+
 ggplot(unemploy_edu, aes(Rate, fct_reorder2(State, Type=="meanvalue",Rate,.desc=FALSE),
                 color=Type))+
   geom_point()+
-  scale_color_manual(values = cb_palette)+
+  scale_color_colorblind()+
   ggtitle("State Unemployment Rate and Education Levels")+
   theme(plot.title=element_text(size=18))+
   ylab('State')+
@@ -291,10 +291,6 @@ ggplot(unemploy_edu, aes(Rate, fct_reorder2(State, Type=="meanvalue",Rate,.desc=
   xlab('Rate')+
   theme(axis.title.x = element_text(size=16))+
   theme(legend.position="right", legend.direction="vertical", plot.title = element_text(size=18))
-
-
-
-
 ```
 
 We are using this plot to illustrate the dependency relationship between unemployment rate and education level of each state. In order to present a more general trend, we decide to use data of each state, not individual county.\
@@ -321,7 +317,7 @@ Without a doubt, we cannot assure the relationship between Unemployment and Educ
 
 ### Dependency relation between Unemployment Rate and Occupation Industries
 
-```{r,fig.height=8,fig.width=12}
+```{r,fig.height=8,fig.width=14}
 
 # Get occupation percentage info of each state.
 df_occu<-as.data.frame(rad33 %>% 
@@ -330,6 +326,9 @@ df_occu<-as.data.frame(rad33 %>%
                                 PctEmpTrade,PctEmpTrans,PctEmpInformation,
                                 PctEmpFIRE,PctEmpServices,PctEmpGovt))
 df_occu1<-melt(df_occu,id.vars = 'State')
+
+cb_palette <- c("#000000","#D81B60", "#7629B3","#FFC107","#004D40",
+                "#6ED4CB","#FF5BC9","#92990E","#E6DFC7","#4C0F65")
 
 # plot unemployment rate and occupation percentage to check for possible correaltion.
 ggplot(df_occu1,aes(x=State,y=value,fill=variable))+
@@ -340,7 +339,7 @@ ggplot(df_occu1,aes(x=State,y=value,fill=variable))+
   xlab('Rate')+
   theme(axis.title.x = element_text(size=19))+
   geom_bar(stat='identity')+
-  scale_fill_brewer(palette = 'Paired')+
+  scale_fill_manual(values = cb_palette)+
   theme(axis.text=element_text(size=18),axis.text.x = element_text(angle = 90),
         legend.title = element_text(size=18))
   
@@ -360,12 +359,10 @@ unemploy_occu <- df6 %>%
   group_by(State)%>%
   gather(key="Type", value="Rate", -State)
 
-cb_palette <- c("#999999", "#E69F00","356B4E9","009E73",
-                "#F0E442","30072B2","3D55E00","#CC79A7")
 ggplot(unemploy_occu, aes(Rate, fct_reorder2(State, Type=="meanvalue",Rate,.desc=FALSE),
                 color=Type))+
   geom_point()+
-  scale_color_manual(values = cb_palette)+
+  scale_color_colorblind()+
   ggtitle("State Unemployment Rate and Occupation")+
   theme(plot.title=element_text(size=18))+
   ylab('State')+
