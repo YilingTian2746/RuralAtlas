@@ -14,6 +14,6 @@ Veterans.csv contains data that represents indicators from the American Communit
 
 County classifications.csv contains information about several categorical variables, such as Rural-urban continuum, population loss, manufacturing-dependent counties, economic dependence and other ERS county codes. Some of these variables are binary, where 1 means the county is in that category and 0 means otherwise. Others are categorical variables showing which level a county is in for that variable.\
 
-### Possible issues
+## Possible issues
 A significant number of social and economic variables of 3225 rural counties are included in these dataset; in addition, a considerable large number of variables only have data on a specific year. Thus, it could be difficult for our team to accurately capture all the information and patterns. Moreover, some data dates before 2005, which may be less valuable for us to dig in. Hence, we might select a subset of variables that are more relevant and comprehensive to work with. For example, we may use the average of the more recent years of some variables to analyze dependancy andspatial relationships, and use the data on a range of different years for time series analysis.\
 
