@@ -449,7 +449,7 @@ ggplot(data = rad_pov_hiame)+
 
 It is quite counterintuitive to find no relationship between poverty rate and unemployment rate. Hence, we would like to explore about what factors may have some relationship with poverty rate. By exploring the data we find a variable called Hiamenity which indicates whether the natural amenities scale of a county is high or not. The natural amenities scale is a measurement on the environmental qualities of a county. A county with a high natural amenities scale means the environmental qualities in that area is pleasant. Intuitive, people will prefer to live in a county with natural amenities scale. With this assumption, the populations in natural amenities scale would increase gradually. Then these population increases may finally benefit the local economy. Therefore, we would expected relatively more poverty counties also have low natural amenities scale. In order to explore the relationship between the poverty and natural amenities scale of counties, we used mosaic plot. According to the mosaic plot above,  the proportion of high poverty counties are very close between high natural amenities scale counties and other counties, which means that there are no strong relationship between poverty and natural amenities scale of a county. Then we introduced another factor which indicates whether a county is low education county or not. After comparing the proportion of low education counties in each group, we find that a low education county are also more likely be a high poverty county.
 
-### Dependency relation between poverty rate and college degree rate
+### Dependency relation between poverty rate and low education rate
 
 ```{r,fig.height=15,fig.width=25}
 edu_degree <- rad %>% 

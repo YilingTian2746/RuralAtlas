@@ -13,7 +13,7 @@ dependency-relation-between-unemployment-rate-and-education-levels.
 dependency-relation-between-unemployment-rate-and-occupation-industries
 dependency-relation-between-unemployment-rate-and-poverty-rate
 dependency-relation-between-poverty-and-natural-amenities-scale
-dependency-relation-between-poverty-rate-and-college-degree-rate
+dependency-relation-between-poverty-rate-and-low-education-rate
 time-series-analysis
 summary
 interactive-component
