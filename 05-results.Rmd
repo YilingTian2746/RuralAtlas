@@ -408,8 +408,9 @@ rad_poverty <- rad%>%
 
 ggplot(rad_poverty, aes(Rate, fct_reorder2(State, Type=="unempoloyment", Rate, .desc = FALSE),
            color = Type)) +
-  geom_point() + ggtitle("State unemployment rate and poverty rate 2018") + ylab("")+
-  theme(axis.text = element_text(size=8))
+  geom_point() + ggtitle("State unemployment rate and poverty rate 2018") + ylab("State")+
+  theme(axis.text = element_text(size=8),axis.title.x = element_text(size=16),axis.title.y = element_text(size=16),
+        legend.title = element_text(size=16),plot.title=element_text(size=18))
 ```
 We are using this plot to verify if there is a correlation between unemployment rate and poverty rate in 2018.\
 
@@ -442,8 +443,10 @@ levels(rad_pov_hiame$Low_Education_2015_update)<- c("no","yes")
 
 ggplot(data = rad_pov_hiame)+ 
   geom_mosaic(aes(x=product(Low_Education_2015_update,Hipov,HiAmenity), fill = Low_Education_2015_update))+
-  theme(axis.text.x = element_text(angle = -30))+
-  labs(x="Low education:Hign amenity county", y="High proverty county", fill = "Low education")
+  labs(x="Low education:Hign amenity county", y="High proverty county", fill = "Low education")+
+  coord_flip() +
+  theme(axis.text = element_text(size=8),axis.title.x = element_text(size=16),axis.title.y = element_text(size=16),
+        legend.title = element_text(size=16),plot.title=element_text(size=18))
   
 ```
 
@@ -469,7 +472,10 @@ edu_gather  <- edu_degree%>%
 ggplot(edu_gather,aes(Type,Rate,fill=Type))+
      geom_bar(stat="identity",position="dodge")+
     facet_geo(~ State, grid = "us_state_grid2")+
-    theme(text = element_text(size=22))+
+    ggtitle("Low education rate and adult poverty rate")+
+    labs(x="Percent", y = "Type of Rate")+
+    theme(text = element_text(size=22),axis.title.x = element_text(size=50),axis.title.y = element_text(size=50),
+        legend.title = element_text(size=50),plot.title=element_text(size=60))+
     coord_flip()
 
 ```
@@ -496,9 +502,10 @@ state_unemployment_rate <- state_unemployment_rate%>%
 ggplot(state_unemployment_rate, aes(Year, Rate, color="red")) +
   geom_line() +
   facet_geo(~ State, grid = "us_state_grid2")+
-  scale_x_continuous(labels = function(Year) paste0("", substr(Year, 3, 4))) +
+  scale_x_continuous(labels = function(x){return( substr(x, 3, 4))}) +
   ylab("Unemployment Rate (%)")+
-  theme(text = element_text(size=12))+
+  theme(text = element_text(size=12),axis.title.x = element_text(size=25),axis.title.y = element_text(size=25),
+        legend.title = element_text(size=25),plot.title=element_text(size=30))+
   theme(legend.position = "none")+
   ggtitle("Unempolyment rate 2010-2019")
 ```
