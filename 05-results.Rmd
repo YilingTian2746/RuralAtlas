@@ -293,11 +293,11 @@ ggplot(unemploy_edu, aes(Rate, fct_reorder2(State, Type=="meanvalue",Rate,.desc=
   theme(legend.position="right", legend.direction="vertical", plot.title = element_text(size=18))
 ```
 
-We are using this plot to illustrate the dependency relationship between unemployment rate and education level of each state. In order to present a more general trend, we decide to use data of each state, not individual county.\
+We are using this plot to illustrate the dependency relationship between unemployment rate and education level of each state. In order to present a more general trend, we decide to use data of each state, not an individual county.\
 
 Note: \
-1.This graph excludes PR; since we don't have information on education levels on the state level.\
-2.Several counties of AK and HI have missing values on unemployment rate; however, since we are interested in finding possible trend between unemployment rate and poverty rate on the state level, the missing values will not significantly affect our result.\
+1.This graph excludes PR; since we don't have information on education levels on this state.\
+2.Several counties of AK and HI have missing values; however, since we are interested in finding possible trend between unemployment rate and education levels on the state level, the missing values will not significantly affect our result.\
 3.the average unemployment rate are arranging in a descending order; meaning state at the top has higher unemployment rate than state at the bottom.\
 
 Variables Used:\
@@ -308,12 +308,10 @@ Variables Used:\
 *ED5CollegePlusPct:* indicating the percentage of adults 25 and over with a 4-year college degree or more, from 2014 to 2018.\
 *meanvlue* The education level data is averaging from 2014 to 2018, so we decide to average the Unemployment rate from 2014 to 2018 and store this variable as meanvalue.\
 
-Each state has six corresponding data points, the purple ones represent the average unemployment rate from 2014 to 2018, and the remaining ones represent education levels, differentiated by colors.\
 
-From the plot, we can see a relatively significant positive relationship between unemployment and Ed1LessThanHSPct, which means, as the rate of adults with no high school diploma increases, the unemployment rate is likely to increase; moreover, we can also see a relatively significant negative relationship between unemployment and Ed4AssocDegreePct, which means as the rate of adults with associate's degree increases, the unemployment rate is likely to decrease.The other levels of education seem to have a relatively weak dependency relation with unemployment rate.\
+From the plot, we can see unemployment rate and Ed1LessThanHSPct seems to be positively related; which means, as the rate of adults with no high school diploma increases, the unemployment rate is likely to increase; moreover, we can also see a relatively significant negative relationship between unemployment and Ed4AssocDegreePct, which means as the rate of adults with associate's degree increases, the unemployment rate is likely to decrease. other levels of education seem to have a relatively weak dependency relation with unemployment rate.\
 
-Without a doubt, we cannot assure the relationship between Unemployment and Education Levels; therefore, in order to verify the dependency relation discussed above, we need to do further regression analysis.\
-
+Without a doubt, we cannot assure the relationship between Unemployment rate and Education Levels; therefore, in order to verify the dependency relationship discussed above, further regression analysis is required.\
 
 ### Dependency relation between Unemployment Rate and Occupation Industries
 
@@ -372,25 +370,23 @@ ggplot(unemploy_occu, aes(Rate, fct_reorder2(State, Type=="meanvalue",Rate,.desc
   theme(legend.position="right", legend.direction="vertical", legend.title = element_text(size=16))
 ```
 
-We are using this plot to indicate possible dependency relation between unemployment rate and occupation percentage in the labor force of each state. In order to present a more general trend, we decide to use data of each state, not individual county.\
+We are using this plot to discuss unemployment rate by occupation. In order to present a more general trend, we decide to use data of each state, not an individual county.\
 
 Note: \
-1.Several counties of AK, NM and AV have missing values; however, since we are interested in finding possible trend between unemployment rate and occupational industry on the state level, the missing values will not significantly affect our result.\
+1.Several counties of AK, NM and AV have missing values; however, since we are interested in finding a more general result on the state level, the missing values will not significantly affect our result.\
 2.The average unemployment rate are arranging in a descending order; meaning state at the top has higher unemployment rate than state at the bottom.\
 
 *PctEmpAgriculture,PctEmpMining,PctEmpConstruction,PctEmpManufacturing,PctEmpTrade,PctEmpTrans,PctEmpInformation, PctEmpFIRE,PctEmpServices,PctEmpGovt* represents the percentage of the civilian labor force 16 and over employment in Agriculture, Mining, Construction, Manufacturing, Wholesale and Retail Trade, Transportation,Information services, Finance and Insurance and Real Estate and rental, Services, Public Administration respectively.\
-*meanvlue* The education level data is averaging from 2014 to 2018, so we decide to average the Unemployment rate from 2014 to 2018 and store this variable as meanvalue.\
+*meanvlue* The percentage of labor force in different occupation is averaging from 2014 to 2018, so we decide to average the Unemployment rate from 2014 to 2018 and store this variable as meanvalue.\
 
 For research simplicity, we decide to take only four occupational industries.\
-According to our first plot, which indicates the percentage of every occupational industry of each state, PctEmpServices, PctEmpConstruction, PctEmpTrade, PctEmpManufacturing are the ones with the relative high percentage; therefore, we decide to take these four industries and check for dependency relation with unemployment rate.\
+According to our first plot, which indicates the proportion of labor force in different industries of each state, PctEmpServices, PctEmpConstruction, PctEmpTrade, PctEmpManufacturing are the ones with the relative high percentages for all states; therefore, we decide to take these four industries and check for dependency relationship with unemployment rate.\
 
-According the our second plot,we can see a relatively significant positive relationship between unemployment rate and PctEmpServices, which means, as the percentage of civilian labor force 16 and over employment in Service increases, the unemployment rate is likely to increase.\
+According the our second plot,we can see unemployment rate and PctEmpServices seems to be positively related; which means, as the percentage of civilian labor force 16 and over employment in Service increases, the unemployment rate is likely to increase.\
 
-Meanwhile, we also can see a relatively significant negative relationship between unemployment rate and PctEmpManufacturing, which means, as the percentage of civilian labor force 16 and over employment in Manufacturing increases, the unemployment rate is likely to decrease.\
+Meanwhile, we also can see unemployment rate and PctEmpManufacturing seems to be negatively related; which means, as the percentage of civilian labor force 16 and over employment in Manufacturing increases, the unemployment rate is likely to decrease; similarly for PctEmpConstruction, and PctEmpTrade; however the dependency relation between PctEmpConstruction,PctEmpTrade and unemployment rate seems to be relatively weak.\
 
-Similarly for PctEmpConstruction, and PctEmpTrade; as the percentage of civilian labor force 16 and over employment in Construction increases, the unemployment rate is likely to decrease; as the percentage of civilian labor force 16 and over employment in Wholesale and Retail Trade increases, the unemployment rate is likely to decrease; however the dependency relation between PctEmpConstruction,PctEmpTrade and unemployment rate seems to be relatively weak.\
-
-Without a doubt, we cannot assure the relationship between unemployment and occupational industry proportion; therefore, in order to verify the dependency relation discussed above, we need to do further regression analysis.\
+Without a doubt, we cannot assure the relationship between unemployment and occupational industry proportion; therefore, in order to verify the dependency relation discussed above, further regression analysis is required.\
 
 ### Dependency relation between Unemployment Rate and Poverty Rate
 
