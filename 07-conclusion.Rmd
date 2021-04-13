@@ -2,7 +2,7 @@
 
 
 ## Work have done\
-We have discussed some possible relationship among several socioeconomic factors through geographic analysis, dependency relation analysis, and time series analysis.Further more, we illustrate the most revealing findings based on county levels and states levels.
+We have discussed some possible relationship among several socioeconomic factors through geographic analysis, dependency relation analysis, and time series analysis. Furthermore, we illustrate the most revealing findings based on county levels and states levels.
 
 ## Limitations\
 A lot of variables we have elaborated in our project are presented by averaging that variable through a certain time period. For example, percents of civilian labor force in different occupational industries are all obtained by averaging from 2014 to 2018; similarly for those percentages of persons at different education levels, deep poverty rate, per capita income. Without yearly detailed information of each variable, we have to average the most important socioeconomic factor, Unemployment rate, we've discussed in out project. By doing that, we lose a lot of information on how variables, like percentage of education levels, percentage of occupation employed, deep poverty rate, affect unemployment rate on yearly basis.\
